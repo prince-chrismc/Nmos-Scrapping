@@ -32,7 +32,7 @@ class QuerySpider(scrapy.Spider):
         ]
 
 
-        r = requests.get('http://{0}:{1}/x-nmos/query/{2}/nodes?paging.order=update&paging.limit=10000000000000'.format(args["ip"], args["port"], args["api_ver"]))
+        r = requests.get('http://{0}:{1}/x-nmos/query/{2}/nodes?paging.order=create&paging.limit=10000000000000'.format(args["ip"], args["port"], args["api_ver"]))
         try:
             lim = r.headers['X-Paging-Limit']
         except:
@@ -41,20 +41,25 @@ class QuerySpider(scrapy.Spider):
         print('Paging Limit: {0}'.format(lim))
 
         for url in urls:
-            href = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=update&paging.limit={4}'.format(args["ip"], args["port"], args["api_ver"], url, lim)
+            href = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}'.format(args["ip"], args["port"], args["api_ver"], url, lim)
             yield scrapy.http.JSONRequest(url=href, callback=self.parse)
 
     def parse(self, response):
         page = response.url.split("/")[-1].split("?")[0]
-        filename = 'query-{0}.json'.format(page)
-        with open(folder + filename, 'wb') as f:
+        filename = 'query-{0}'.format(page)
+        with open(folder + filename + '.json', 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
 
         try:
             since = response.headers['X-Paging-Since']
-            if since != b'0:0':
+            until = response.headers['X-Paging-Until']
+            if since != b'0:0' and since != until:
+#                print('- Since: {0} // Until: {1}'.format(since, until))
                 print('More then paging.limit {0}'.format(page))
+                r = requests.get(response.url + '&paging.since='.format(until[1:-1]))
+                with open(folder + filename + '-2.json', 'wb') as f:
+                    f.write(r.content)
         except:
              pass
 
