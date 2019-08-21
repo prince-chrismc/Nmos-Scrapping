@@ -18,21 +18,21 @@ class QuerySpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'nodes/',
-            'devices/',
-            'senders/',
-            'receivers/',
-            'sources/',
-            'flows/',
+            'nodes',
+            'devices',
+            'senders',
+            'receivers',
+            'sources',
+            'flows',
         ]
 
-        href = 'http://{0}:{1}/x-nmos/query/{2}/'.format(args["ip"], args["port"], args["api_ver"])
         for url in urls:
-            yield scrapy.http.JSONRequest(url=href+url, callback=self.parse)
+            href = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=update&paging.limit=10000'.format(args["ip"], args["port"], args["api_ver"], url)
+            yield scrapy.http.JSONRequest(url=href, callback=self.parse)
 
     def parse(self, response):
-        page = response.url.split("/")[-1]
-        filename = 'query-%s.json' % page
+        page = response.url.split("/")[-1].split("?")[0]
+        filename = 'query-{0}.json'.format(page)
         with open(folder + filename, 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
