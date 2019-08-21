@@ -15,6 +15,10 @@ print(args)
 
 class QuerySpider(scrapy.Spider):
     name = "query"
+    custom_settings = {
+        'TELNETCONSOLE_ENABLED': False,
+        'LOG_LEVEL': 'WARNING',
+    }
 
     def start_requests(self):
         urls = [
@@ -36,3 +40,10 @@ class QuerySpider(scrapy.Spider):
         with open(folder + filename, 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
+
+    def closed(spider, reason):
+        if reason == 'finished':
+            for filename in os.listdir(folder):
+                handle = open(folder + filename)
+                data = json.load(handle)
+                print('Resource in {0}: {1}'.format(filename, len(data)))
