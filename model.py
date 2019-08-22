@@ -41,5 +41,11 @@ def start_requests():
     data = json.loads(r.content)
     for device in data:
         print('- ' + device['id'])
+        href_receivers = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}&device_id={5}'.format(args["ip"], args["port"], args["api_ver"], 'receivers', lim, device['id'])
+        print('GET - ' + href_receivers)
+        r = requests.get(href_receivers)
+        data = json.loads(r.content)
+        for receiver in data:
+            print('    - ' + receiver['id'])
 
 start_requests()
