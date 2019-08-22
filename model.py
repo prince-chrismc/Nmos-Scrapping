@@ -31,9 +31,9 @@ def start_requests():
 
     data = json.loads(r.content)
     print('There are {0} nodes'.format(len(data)))
-#    for node in data:
-#        parse_node(node['id'])
-    parse_node('250aa71c-e915-3c7a-82b7-31a3b0197707')
+    for node in data:
+        parse_node(node['id'])
+#    parse_node('250aa71c-e915-3c7a-82b7-31a3b0197707')
 
 def parse_node(node_id):
     lim = determine_paging_limit()
