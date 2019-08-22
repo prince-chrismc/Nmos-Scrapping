@@ -46,11 +46,6 @@ class QueryScrapper():
             while True:
                 print('GET - ' + href + '&paging.since=' + until)
                 r = requests.get(href + '&paging.since=' + until)
-                filename = 'query-' + url
-                with open(folder + filename + '-{0}.json'.format(index), 'wb') as f:
-                    index += 1
-                    f.write(r.content)
-
 #                print(r.headers)
                 since = r.headers['X-Paging-Since']
                 until = r.headers['X-Paging-Until']
@@ -60,6 +55,10 @@ class QueryScrapper():
                     break
 
 #                print('More then paging.limit of ' + url)
+                filename = 'query-' + url
+                with open(folder + filename + '-{0}.json'.format(index), 'wb') as f:
+                    index += 1
+                    f.write(r.content)
 
     def close(self):
         for filename in os.listdir(folder):
