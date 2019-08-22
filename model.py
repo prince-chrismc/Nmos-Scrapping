@@ -31,9 +31,12 @@ def start_requests():
 
     data = json.loads(r.content)
     print('There are {0} nodes'.format(len(data)))
+    for node in data:
+        parse_node(node['id'])
 
-#    node_id = data[0]['id']
-    node_id = '76ce6f35-bffd-27c3-a8d8-40a36ba0b212'
+
+def parse_node(node_id):
+    lim = determine_paging_limit()
     href_associated_devices = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}&node_id={5}'.format(args["ip"], args["port"], args["api_ver"], 'devices', lim, node_id)
     print('GET - ' + href_associated_devices)
     r = requests.get(href_associated_devices)
