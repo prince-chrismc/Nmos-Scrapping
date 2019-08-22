@@ -34,38 +34,32 @@ class QueryScrapper():
 #        print('Paging Limit: {0}'.format(lim))
         return lim
 
-    def save_response(response, index = 0, resource = 'unknown'):
-        with open(folder + 'query-' + resource + '-{0}.json'.format(index), 'wb') as f:
-            f.write(response.content)
-
     def start_requests(self):
         lim = QueryScrapper.determine_paging_limit()
-        for resource in self.endpoints:
-            href = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}'.format(args["ip"], args["port"], args["api_ver"], resource, lim)
+        for url in self.endpoints:
+            href = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}'.format(args["ip"], args["port"], args["api_ver"], url, lim)
 
             index = 0
             since = '0:0'
-            until = '0:0'
+            until = '0:1'
 
             while True:
-                link = href
-                if index > 0:
-                    link += '&paging.since=' + until
+                print('\n\nGET - ' + href + '&paging.since=' + until)
+                r = requests.get(href + '&paging.since=' + until)
+                filename = 'query-' + url
+                with open(folder + filename + '-{0}.json'.format(index), 'wb') as f:
+                    index += 1
+                    f.write(r.content)
 
-                print('\nGET - ' + link)
-                r = requests.get(link)
-                QueryScrapper.save_response(r, index, resource)
-                index += 1
-
-#                print(r.headers)
+                print(r.headers)
                 since = r.headers['X-Paging-Since']
                 until = r.headers['X-Paging-Until']
-#                print('Since: {0} // Until: {1}'.format(since, until))
+                print('Since: {0} // Until: {1}'.format(since, until))
                 if since == '0:0' or since == until:
-                    print('Obtained all ' + resource)
+                    print('Obtained all ' + url)
                     break
 
-                print('More then paging.limit of ' + resource)
+                print('More then paging.limit of ' + url)
 
     def close(self):
         for filename in os.listdir(folder):
