@@ -31,9 +31,9 @@ def start_requests():
 
     data = json.loads(r.content)
     print('There are {0} nodes'.format(len(data)))
-    for node in data:
-        parse_node(node['id'])
-
+#    for node in data:
+#        parse_node(node['id'])
+    parse_node('250aa71c-e915-3c7a-82b7-31a3b0197707')
 
 def parse_node(node_id):
     lim = determine_paging_limit()
@@ -42,6 +42,18 @@ def parse_node(node_id):
     r = requests.get(href_associated_devices)
 
     data = json.loads(r.content)
+#    print('Does {0} == {1} equals {2}'.format(int(len(data)), int(lim), int(len(data))==int(lim)))
+    if int(len(data)) == int(lim):
+         print('There are more then {0} devices'.format(lim))
+         since = r.headers['X-Paging-Since']
+         until = r.headers['X-Paging-Until']
+         print('Since: {0} // Until: {1}'.format(since, until))
+         if since == '0:0' or since == until:
+             r = requests.get(href_associated_devices + '&paging.since=' + until)
+             data_two = json.loads(r.content)
+             print('Page 2 contained {0} devices'.format(len(data_two)))
+             data = data + data_two
+
     print('\nNode { ' + node_id + ' } has the following ' + '{0} devices...'.format(len(data)))
     for device in data:
         print('- ' + device['id'])
