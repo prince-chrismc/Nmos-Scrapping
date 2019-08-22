@@ -44,22 +44,22 @@ class QueryScrapper():
             until = '0:1'
 
             while True:
-                print('\n\nGET - ' + href + '&paging.since=' + until)
+                print('GET - ' + href + '&paging.since=' + until)
                 r = requests.get(href + '&paging.since=' + until)
                 filename = 'query-' + url
                 with open(folder + filename + '-{0}.json'.format(index), 'wb') as f:
                     index += 1
                     f.write(r.content)
 
-                print(r.headers)
+#                print(r.headers)
                 since = r.headers['X-Paging-Since']
                 until = r.headers['X-Paging-Until']
-                print('Since: {0} // Until: {1}'.format(since, until))
+#                print('Since: {0} // Until: {1}'.format(since, until))
                 if since == '0:0' or since == until:
                     print('Obtained all ' + url)
                     break
 
-                print('More then paging.limit of ' + url)
+#                print('More then paging.limit of ' + url)
 
     def close(self):
         for filename in os.listdir(folder):
