@@ -74,7 +74,22 @@ def parse_node(node_id):
         r = requests.get(href_receivers)
         data = json.loads(r.content)
         for receiver in data:
-            print('R   - ' + receiver['id'] + '\t' + receiver['format'].split(':')[-1])
+            href_unique_rx = 'http://{0}:{1}/x-nmos/query/{2}/{3}/{4}'.format(args["ip"], args["port"], args["api_ver"], 'receivers', receiver['id'])
+#            print('GET - ' + href_unique_rx)
+            r = requests.get(href_unique_rx)
+
+            if r.status_code == 404:
+                print('R   - ' + receiver['id'] + '\t' + receiver['format'].split(':')[-1] + '(404)')
+            elif receiver['id'] not in device['receivers']:
+                print('R   - ' + receiver['id'] + '\t' + receiver['format'].split(':')[-1] + '(No Ref)')
+            else:
+                device['receivers'].remove(receiver['id'])
+                print('R   - ' + receiver['id'] + '\t' + receiver['format'].split(':')[-1])
+
+        if len(device['receivers']) > 0:
+            print()
+            for rx_id in device['receivers']:
+                print('R   - ' + rx_id + '(ERROR)')
 
         if len(data) > 0:
             print()
