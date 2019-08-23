@@ -4,6 +4,7 @@ import pathlib
 import json
 import sys
 import requests
+from jsonschema import validate
 
 # datetime object containing current date and time
 now = datetime.now()
@@ -12,6 +13,17 @@ pathlib.Path(folder).mkdir(parents=True, exist_ok=True)
 
 args = json.loads(sys.argv[-1])
 print(args)
+
+schema = {
+    "type" : "object",
+    "properties" : {
+        "ip" : {"type" : "string"},
+        "port" : {"type" : "number"},
+        "api_ver" : {"type" : "string"},
+    },
+}
+
+validate(instance=args, schema=schema)
 
 def determine_paging_limit():
     r = requests.get('http://{0}:{1}/x-nmos/query/{2}/nodes?paging.order=create&paging.limit=10000000000000'.format(args["ip"], args["port"], args["api_ver"]))
@@ -44,10 +56,10 @@ def parse_node(node_id):
     data = json.loads(r.content)
 #    print('Does {0} == {1} equals {2}'.format(int(len(data)), int(lim), int(len(data))==int(lim)))
     if int(len(data)) == int(lim):
-         print('There are more then {0} devices'.format(lim))
+#         print('There are more then {0} devices'.format(lim))
          since = r.headers['X-Paging-Since']
          until = r.headers['X-Paging-Until']
-         print('Since: {0} // Until: {1}'.format(since, until))
+#         print('Since: {0} // Until: {1}'.format(since, until))
          if since == '0:0' or since == until:
              r = requests.get(href_associated_devices + '&paging.since=' + until)
              data_two = json.loads(r.content)
@@ -62,7 +74,7 @@ def parse_node(node_id):
         r = requests.get(href_receivers)
         data = json.loads(r.content)
         for receiver in data:
-            print('R   - ' + receiver['id'])
+            print('R   - ' + receiver['id'] + '\t' + receiver['format'].split(':')[-1])
 
         if len(data) > 0:
             print()
@@ -78,7 +90,7 @@ def parse_node(node_id):
             r = requests.get(href_flows)
             data = json.loads(r.content)
             for flow in data:
-                print('F       - ' + flow['id'])
+                print('F       - ' + flow['id'] + '\t' + flow['format'].split(':')[-1])
                 href_flows = 'http://{0}:{1}/x-nmos/query/{2}/{3}?paging.order=create&paging.limit={4}&flow_id={5}'.format(args["ip"], args["port"], args["api_ver"], 'senders', lim, flow['id'])
 #                print('\nGET - ' + href_flows)
                 r = requests.get(href_flows)
