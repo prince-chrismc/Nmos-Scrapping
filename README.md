@@ -1,11 +1,10 @@
 # Nmos-Scrapping
 
-Very basic RDS scrapping tool.
+Very basic RDS scrapping tool leverging the [Query API](https://amwa-tv.github.io/nmos-discovery-registration/tags/v1.2.1/html-APIs/QueryAPI.html).
 
 run `python3 scrap-query.py '{"ip":"192.168.3.45","port":80,"api_ver":"v1.2"}'` to get a timestamped dump of the RDS.
 
-
-### Analysis
+### Data Mining
 - Number of active vs inactive senders
 ```sh
 cat 23-08-2019/02-52-36/query-senders-*.json | grep -o \"active\":true | wc -l
