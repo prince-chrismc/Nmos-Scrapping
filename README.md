@@ -53,3 +53,22 @@ cat query-flows-*.json | egrep -o 'source_id":"f0eee93f-60d8-46fb-b270-3649e2667
 # Follow device_id
 # Follow node_id
 ```
+
+## Processing Dumps
+```python
+>>> for filename in Path('.').rglob('*.sdp'):
+...    with open(filename) as f:
+...       if not '"code":404' in f.read():
+...          if not 'v=' in f.read():
+...             subprocess.call(["git", "add", filename])
+```
+
+```python
+>>> for filename in Path('.').rglob('*.sdp'):
+...    delete = False
+...    with open(filename) as f:
+...       if '"code":404' in f.read():
+...          delete = True
+...    if delete:
+...       subprocess.call(["cmd", "/C", "del", filename])
+```
